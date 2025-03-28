@@ -14,6 +14,9 @@ import com.eventix.eventix.dtos.EventoDTO;
 import com.eventix.eventix.dtos.EventoListarDTO;
 import com.eventix.eventix.services.EventoService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,24 +31,44 @@ public class EventoController {
   private EventoService eventoService;
 
   @PostMapping("/criar")
+  @Operation(description = "Dado os dados, cria um evento.", responses = {
+    @ApiResponse(responseCode = "200", description = "Caso o evento seja criado com sucesso."),
+    @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
+    @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
+    })
   public ResponseEntity<Evento> salvar(@RequestBody EventoDTO evento) {
     Evento novoEvento = eventoService.salvar(evento);
     return ResponseEntity.status(HttpStatus.CREATED).body(novoEvento);    
   }
   
   @DeleteMapping("/deletar/{id}")
+  @Operation(description = "Dado o id, o evento é deletado.", responses = {
+    @ApiResponse(responseCode = "200", description = "Caso o evento seja deletado com sucesso."),
+    @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
+    @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
+    })
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deletar (@PathVariable Long id) throws Exception{
     eventoService.deletar(id);
   }
 
   @GetMapping("/listar")
+  @Operation(description = "Lista todos os eventos.", responses = {
+    @ApiResponse(responseCode = "200", description = "Caso os eventos sejam listados com sucesso."),
+    @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
+    @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
+    })
   public ResponseEntity<List<EventoListarDTO>> listar () {
     List<EventoListarDTO> eventos = eventoService.listar();
     return ResponseEntity.ok(eventos);
   }
 
   @GetMapping("buscar/{id}")
+  @Operation(description = "Dado o id, busca o evento.", responses = {
+    @ApiResponse(responseCode = "200", description = "Caso o evento seja encontardo com sucesso."),
+    @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
+    @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
+    })
   public ResponseEntity<Evento> buscar(@PathVariable Long id) {
     Evento evento = eventoService.buscarPorId(id);
     return ResponseEntity.ok(evento);

@@ -57,7 +57,7 @@ public class UsuarioController {
     return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
   }
 
-  @PutMapping("editar/{id}")
+  @PutMapping("/editar/{id}")
   @Operation(description = "Dado o id, o usuário é editado.", responses = {
             @ApiResponse(responseCode = "200", description = "Caso o usuário seja editado com sucesso."),
             @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),

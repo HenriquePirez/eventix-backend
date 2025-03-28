@@ -27,6 +27,7 @@ public class UsuarioService {
   @Autowired
   private FuncaoRepository funcaoRepository;
 
+  @Autowired
   private UsuarioEventoRepository usuarioEventoRepository;
 
   public Usuario salvar(Usuario user) {
