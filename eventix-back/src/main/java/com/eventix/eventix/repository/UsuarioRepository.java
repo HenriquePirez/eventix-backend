@@ -1,5 +1,7 @@
 package com.eventix.eventix.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,4 +17,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>{
         "FROM Usuario u JOIN u.funcoes f " +
         "WHERE u.id = :usuarioId AND f.id = :funcaoId")
   boolean possuiFuncao(@Param("usuarioId") Long usuarioId, @Param("funcaoId") Long funcaoId);
+
+  Optional<Usuario> findByEmail(String email);
 }

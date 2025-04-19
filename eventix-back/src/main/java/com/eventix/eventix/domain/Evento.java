@@ -48,7 +48,7 @@ public class Evento {
 
   // Métodos para gerenciar participantes
   public void adicionarParticipante(Usuario usuario, Funcao funcao) {
-    UsuarioEvento usuarioEvento = new UsuarioEvento(this, usuario, funcao);
+    UsuarioEvento usuarioEvento = new UsuarioEvento(this, usuario, funcao, false);
     participantes.add(usuarioEvento);
     usuario.getEventos().add(usuarioEvento);
   }

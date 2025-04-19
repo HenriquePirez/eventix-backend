@@ -1,4 +1,4 @@
-package com.eventix.eventix.dtos;
+package com.eventix.eventix.dtos.evento;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

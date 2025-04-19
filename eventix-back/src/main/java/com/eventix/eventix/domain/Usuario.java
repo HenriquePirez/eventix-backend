@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.eventix.eventix.domain.enums.UserRole;
 import com.eventix.eventix.domain.enums.sexoEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -48,6 +49,8 @@ public class Usuario {
     private LocalDate dataNascimento;
 
     private sexoEnum sexo;
+
+    private UserRole role;
 
     @JsonManagedReference
     @ManyToMany(fetch = FetchType.LAZY)

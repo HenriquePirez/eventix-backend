@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eventix.eventix.domain.Evento;
-import com.eventix.eventix.dtos.EventoDTO;
-import com.eventix.eventix.dtos.EventoListarDTO;
+import com.eventix.eventix.dtos.evento.EventoDTO;
+import com.eventix.eventix.dtos.evento.EventoListarDTO;
 import com.eventix.eventix.services.EventoService;
 
 import io.swagger.v3.oas.annotations.Operation;

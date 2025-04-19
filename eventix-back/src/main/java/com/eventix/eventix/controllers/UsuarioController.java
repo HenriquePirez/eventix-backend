@@ -1,19 +1,14 @@
 package com.eventix.eventix.controllers;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.eventix.eventix.domain.Funcao;
 import com.eventix.eventix.domain.Usuario;
 import com.eventix.eventix.dtos.UsuarioDTO;
 import com.eventix.eventix.dtos.UsuarioEditarDTO;
-import com.eventix.eventix.services.FuncaoService;
 import com.eventix.eventix.services.UsuarioService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,10 +21,7 @@ public class UsuarioController {
   
   @Autowired
   private UsuarioService usuarioService;
-
-  @Autowired
-  private FuncaoService funcaoService;
-
+  
   @PostMapping("/criar")
   @Operation(description = "Dado os dados, cadastra um usuário.", responses = {
             @ApiResponse(responseCode = "200", description = "Caso o usuário seja inserido com sucesso."),
@@ -37,23 +29,7 @@ public class UsuarioController {
             @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
     })
   public ResponseEntity<Usuario> salvar (@RequestBody UsuarioDTO dto) {
-    Usuario novoUsuario = new Usuario();
-    novoUsuario.setEmail(dto.getEmail());
-    novoUsuario.setSenha(dto.getSenha());
-    novoUsuario.setNome(dto.getNome());
-    novoUsuario.setDataNascimento(dto.getDataNascimento());
-    novoUsuario.setSexo(dto.getSexo());
-    
-    // Associar funções ao usuário
-    if (dto.getFuncoesIds() != null) {
-        Set<Funcao> funcoes = new HashSet<>();
-        for (Long funcaoId : dto.getFuncoesIds()) {
-            Funcao funcao = funcaoService.buscarPorId(funcaoId);
-            funcoes.add(funcao);
-        }
-        novoUsuario.setFuncoes(funcoes);
-    }
-    usuarioService.salvar(novoUsuario);
+    Usuario novoUsuario = usuarioService.salvar(dto);
     return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
   }
 

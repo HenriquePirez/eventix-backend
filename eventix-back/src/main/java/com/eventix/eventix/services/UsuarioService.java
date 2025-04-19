@@ -7,12 +7,14 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.eventix.eventix.domain.Funcao;
 import com.eventix.eventix.domain.Usuario;
 import com.eventix.eventix.domain.UsuarioEvento;
+import com.eventix.eventix.dtos.UsuarioDTO;
 import com.eventix.eventix.dtos.UsuarioEditarDTO;
 import com.eventix.eventix.repository.FuncaoRepository;
 import com.eventix.eventix.repository.UsuarioEventoRepository;
@@ -30,8 +32,28 @@ public class UsuarioService {
   @Autowired
   private UsuarioEventoRepository usuarioEventoRepository;
 
-  public Usuario salvar(Usuario user) {
-    return usuarioRepository.save(user);
+  public Usuario salvar(UsuarioDTO dto) {
+    Usuario novoUsuario = new Usuario();
+    novoUsuario.setEmail(dto.getEmail());
+
+    String encryptedPassword = new BCryptPasswordEncoder().encode(dto.getSenha());
+    novoUsuario.setSenha(encryptedPassword);
+    
+    novoUsuario.setNome(dto.getNome());
+    novoUsuario.setDataNascimento(dto.getDataNascimento());
+    novoUsuario.setSexo(dto.getSexo());
+    
+    // Associar funções ao usuário
+    if (dto.getFuncoesIds() != null) {
+        Set<Funcao> funcoes = new HashSet<>();
+        for (Long funcaoId : dto.getFuncoesIds()) {
+            Funcao novaFuncao = funcaoRepository.findById(funcaoId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Função não encontrada"));;
+            funcoes.add(novaFuncao);
+        }
+        novoUsuario.setFuncoes(funcoes);
+    }
+
+    return usuarioRepository.save(novoUsuario);
   }
 
   public Usuario editar(Long id, UsuarioEditarDTO usuarioAtualizado) {

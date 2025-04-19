@@ -9,7 +9,6 @@ import com.eventix.eventix.services.FuncaoService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import lombok.experimental.Delegate;
 
 import java.util.List;
 

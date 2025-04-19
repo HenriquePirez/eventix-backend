@@ -12,10 +12,10 @@ import com.eventix.eventix.domain.Evento;
 import com.eventix.eventix.domain.Funcao;
 import com.eventix.eventix.domain.Usuario;
 import com.eventix.eventix.domain.UsuarioEvento;
-import com.eventix.eventix.dtos.EventoDTO;
-import com.eventix.eventix.dtos.EventoListarDTO;
-import com.eventix.eventix.dtos.UsuarioEventoDTO;
-import com.eventix.eventix.dtos.UsuarioEventoListarDTO;
+import com.eventix.eventix.dtos.evento.EventoDTO;
+import com.eventix.eventix.dtos.evento.EventoListarDTO;
+import com.eventix.eventix.dtos.evento.UsuarioEventoDTO;
+import com.eventix.eventix.dtos.evento.UsuarioEventoListarDTO;
 import com.eventix.eventix.repository.EventoRepository;
 import com.eventix.eventix.repository.FuncaoRepository;
 import com.eventix.eventix.repository.UsuarioRepository;
@@ -121,4 +121,7 @@ public class EventoService {
     return eventoRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Evento não encontrado"));
   }
 
+  public List<Evento> listarEventosPorUsuario (Long id) {
+    return eventoRepository.findEventosByUsuarioId(id);
+  }
 }

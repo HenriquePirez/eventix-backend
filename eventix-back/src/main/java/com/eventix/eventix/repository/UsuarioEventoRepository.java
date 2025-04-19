@@ -10,4 +10,5 @@ import java.util.Optional;
 
 public interface UsuarioEventoRepository extends JpaRepository<UsuarioEvento, UsuarioEventoId>{
   Optional<UsuarioEvento> findByUsuario(Usuario usuario);
+  
 }
