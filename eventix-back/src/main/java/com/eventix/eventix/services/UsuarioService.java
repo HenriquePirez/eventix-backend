@@ -32,13 +32,12 @@ public class UsuarioService {
   @Autowired
   private UsuarioEventoRepository usuarioEventoRepository;
 
-  public Usuario salvar(UsuarioDTO dto) {
+  public Usuario salvar(UsuarioDTO dto) throws Exception {
     Usuario novoUsuario = new Usuario();
-    novoUsuario.setEmail(dto.getEmail());
-
+    
     String encryptedPassword = new BCryptPasswordEncoder().encode(dto.getSenha());
     novoUsuario.setSenha(encryptedPassword);
-    
+    novoUsuario.setEmail(dto.getEmail());
     novoUsuario.setNome(dto.getNome());
     novoUsuario.setDataNascimento(dto.getDataNascimento());
     novoUsuario.setSexo(dto.getSexo());
@@ -47,7 +46,7 @@ public class UsuarioService {
     if (dto.getFuncoesIds() != null) {
         Set<Funcao> funcoes = new HashSet<>();
         for (Long funcaoId : dto.getFuncoesIds()) {
-            Funcao novaFuncao = funcaoRepository.findById(funcaoId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Função não encontrada"));;
+            Funcao novaFuncao = funcaoRepository.findById(funcaoId).orElseThrow(() -> new Exception("Função não encontrada"));;
             funcoes.add(novaFuncao);
         }
         novoUsuario.setFuncoes(funcoes);
@@ -105,7 +104,7 @@ public class UsuarioService {
       Optional<UsuarioEvento> usuarioPresente = usuarioEventoRepository.findByUsuario(usuario.get());
 
       if(usuarioPresente.isPresent()){
-        throw new Exception("Usuario está relacionado a um ou mais evebtos e não pode ser excluído.");
+        throw new Exception("Usuario está relacionado a um ou mais eventos e não pode ser excluído.");
         
       } else {
         usuarioRepository.delete(usuario.get());

@@ -15,6 +15,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,7 +29,8 @@ public class FuncaoController {
   @Autowired
   private FuncaoService funcaoService;
 
-  @PostMapping("/criar")
+  @PostMapping("/admin/criar")
+  @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado os dados, cadastra uma função.", responses = {
             @ApiResponse(responseCode = "200", description = "Caso a função seja inserida com sucesso."),
             @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
@@ -39,7 +41,8 @@ public class FuncaoController {
       return ResponseEntity.status(HttpStatus.CREATED).body(novaFuncao);
   }
 
-  @DeleteMapping("/deletar/{id}")
+  @DeleteMapping("/admin/deletar/{id}")
+  @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado o id, a função é deletada.", responses = {
     @ApiResponse(responseCode = "200", description = "Caso a função seja deletada com sucesso."),
     @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
@@ -49,7 +52,8 @@ public class FuncaoController {
     funcaoService.deletar(id);
   }
 
-  @GetMapping("/listar")
+  @GetMapping("/admin/listar")
+  @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Lista todas as funções.", responses = {
     @ApiResponse(responseCode = "200", description = "Caso as funções sejam listadas com sucesso."),
     @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
@@ -60,13 +64,14 @@ public class FuncaoController {
     return ResponseEntity.ok(funcoes);
   }
 
-  @GetMapping("/buscar/{id}")
+  @GetMapping("/admin/buscar/{id}")
+  @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado o ID, busca uma função.", responses = {
     @ApiResponse(responseCode = "200", description = "Caso a função seja encontrada com sucesso."),
     @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
     @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
     })
-  public ResponseEntity<Funcao> buscar(@PathVariable Long id) {
+  public ResponseEntity<Funcao> buscar(@PathVariable Long id) throws Exception {
     Funcao funcao = funcaoService.buscarPorId(id);
     return ResponseEntity.ok(funcao);
   }

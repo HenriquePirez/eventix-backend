@@ -18,6 +18,7 @@ import com.eventix.eventix.dtos.evento.UsuarioEventoDTO;
 import com.eventix.eventix.dtos.evento.UsuarioEventoListarDTO;
 import com.eventix.eventix.repository.EventoRepository;
 import com.eventix.eventix.repository.FuncaoRepository;
+import com.eventix.eventix.repository.UsuarioEventoRepository;
 import com.eventix.eventix.repository.UsuarioRepository;
 
 @Service
@@ -31,6 +32,9 @@ public class EventoService {
   
   @Autowired
   private FuncaoRepository funcaoRepository;
+
+  @Autowired
+  private UsuarioEventoRepository usuarioEventoRepository;
 
   public Evento salvar(EventoDTO eventoDTO) {
 
@@ -123,5 +127,32 @@ public class EventoService {
 
   public List<Evento> listarEventosPorUsuario (Long id) {
     return eventoRepository.findEventosByUsuarioId(id);
+  }
+
+  public boolean confirmarPresenca (Long id_evento, Long id_user) throws Exception {
+
+    Optional<Evento> evento = eventoRepository.findById(id_evento);
+
+    if (evento.isPresent()) {
+      Optional<Usuario> user = usuarioRepository.findById(id_user);
+      if (user.isPresent()) {
+        for(UsuarioEvento usuarioEvento : evento.get().getParticipantes()) {
+          if (usuarioEvento.getUsuario().equals(user.get())) {
+            if (!usuarioEvento.isConfirmado()) {
+              usuarioEvento.setConfirmado(true);
+              usuarioEventoRepository.save(usuarioEvento);
+            } else {
+              throw new Exception("Usuario ja esta confirmado nesse evento");
+            }
+          }
+        }
+      } else {
+        throw new Exception("Usuario nao encontrado");
+      }
+
+    } else {
+      throw new Exception("Evento nao encontrado");
+    }
+    return true;
   }
 }

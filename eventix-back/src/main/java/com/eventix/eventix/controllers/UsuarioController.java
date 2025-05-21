@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.eventix.eventix.domain.Usuario;
@@ -16,65 +17,59 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 
 @RestController
-@RequestMapping("/usuario")
+@RequestMapping("/usuarios")
 public class UsuarioController {
   
   @Autowired
   private UsuarioService usuarioService;
-  
-  @PostMapping("/criar")
-  @Operation(description = "Dado os dados, cadastra um usuário.", responses = {
-            @ApiResponse(responseCode = "200", description = "Caso o usuário seja inserido com sucesso."),
-            @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
-            @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
-    })
-  public ResponseEntity<Usuario> salvar (@RequestBody UsuarioDTO dto) {
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @PostMapping("admin")
+  @Operation(description = "Cadastro público de usuário", responses = {
+    @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
+    @ApiResponse(responseCode = "400", description = "Dados inválidos")
+  })
+  public ResponseEntity<Usuario> salvar(@RequestBody UsuarioDTO dto) throws Exception {
     Usuario novoUsuario = usuarioService.salvar(dto);
     return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
   }
 
-  @PutMapping("/editar/{id}")
-  @Operation(description = "Dado o id, o usuário é editado.", responses = {
-            @ApiResponse(responseCode = "200", description = "Caso o usuário seja editado com sucesso."),
-            @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
-            @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
-    })
+  @PutMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN') or @usuarioSecurity.isOwner(#id, authentication)")
+  @Operation(description = "Edição de usuário", responses = {
+    @ApiResponse(responseCode = "200", description = "Usuário editado"),
+    @ApiResponse(responseCode = "403", description = "Acesso negado"),
+    @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+  })
   public ResponseEntity<Usuario> editar(@PathVariable Long id, @RequestBody UsuarioEditarDTO usuarioAtualizado) {
-      Usuario usuario = usuarioService.editar(id, usuarioAtualizado);     
-      return ResponseEntity.ok(usuario);
+    Usuario usuario = usuarioService.editar(id, usuarioAtualizado);     
+    return ResponseEntity.ok(usuario);
   }  
 
-  @DeleteMapping("/deletar/{id}")
+  @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN') or @usuarioSecurity.isOwner(#id, authentication)")
+  @Operation(description = "Exclusão de usuário", responses = {
+    @ApiResponse(responseCode = "204", description = "Usuário excluído"),
+    @ApiResponse(responseCode = "403", description = "Acesso negado")
+  })
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(description = "Dado o id, o usuário é deletado.", responses = {
-    @ApiResponse(responseCode = "200", description = "Caso o usuário seja deletado com sucesso."),
-    @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
-    @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
-    })
-  public void deletar(@PathVariable Long id) throws Exception{
-      usuarioService.deletar(id);
+  public void deletar(@PathVariable Long id) throws Exception {
+    usuarioService.deletar(id);
   }
-  
-  @GetMapping("/listar")
-  @Operation(description = "Lista todos os usuários.", responses = {
-    @ApiResponse(responseCode = "200", description = "Caso os usuários sejam editados com sucesso."),
-    @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
-    @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
-   })
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/admin")
+  @Operation(description = "Listagem de todos os usuários (apenas ADMIN)")
   public ResponseEntity<List<Usuario>> listarTodosUsuarios() {
     List<Usuario> usuarios = usuarioService.listar();
     return ResponseEntity.ok(usuarios);
   }
 
-  @GetMapping("/buscar/{id}")
-  @Operation(description = "Dado o id, busca o usuário.", responses = {
-    @ApiResponse(responseCode = "200", description = "Caso o usuário seja encontrado com sucesso."),
-    @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
-    @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
-   })
+  @GetMapping("/admin/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
+  @Operation(description = "Busca de usuário por ID (apenas ADMIN)")
   public ResponseEntity<Usuario> buscar(@PathVariable Long id) {
     Usuario user = usuarioService.buscarPorId(id);
     return ResponseEntity.ok(user);
   }
-  
 }

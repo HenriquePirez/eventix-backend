@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eventix.eventix.domain.Usuario;
+import com.eventix.eventix.domain.enums.UserRole;
 import com.eventix.eventix.dtos.LoginRequestDTO;
 import com.eventix.eventix.dtos.LoginResponseDTO;
 import com.eventix.eventix.dtos.RegisterRequestDTO;
@@ -34,9 +35,9 @@ public class AuthController {
 
   private final PasswordEncoder passwordEncoder;
 
-  @PostMapping("/login")
-    public ResponseEntity login(@RequestBody LoginRequestDTO body){
-        Usuario user = this.usuarioRepository.findByEmail(body.email()).orElseThrow(() -> new RuntimeException("Usuario não encontrado"));
+  @PostMapping("login")
+    public ResponseEntity login(@RequestBody LoginRequestDTO body) throws Exception{
+        Usuario user = this.usuarioRepository.findByEmail(body.email()).orElseThrow(() -> new Exception("Usuario não encontrado"));
         if(passwordEncoder.matches(body.senha(), user.getSenha())) {
             String token = this.tokenService.generateToken(user);
             return ResponseEntity.ok(new LoginResponseDTO(user.getNome(), token));
@@ -44,15 +45,18 @@ public class AuthController {
         return ResponseEntity.badRequest().build();
     }
 
-  @PostMapping("/register")
-    public ResponseEntity register(@RequestBody RegisterRequestDTO body){
+  @PostMapping("register")
+    public ResponseEntity register(@RequestBody RegisterRequestDTO body) throws Exception{
         Optional<Usuario> user = this.usuarioRepository.findByEmail(body.email());
 
         if(user.isEmpty()) {
             Usuario newUser = new Usuario();
+            newUser.setRole(UserRole.USER);
             newUser.setSenha(passwordEncoder.encode(body.senha()));
             newUser.setEmail(body.email());
             newUser.setNome(body.nome());
+            newUser.setSexo(body.sexo());
+            newUser.setDataNascimento(body.dataNascimento());
             this.usuarioRepository.save(newUser);
 
             String token = this.tokenService.generateToken(newUser);

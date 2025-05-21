@@ -4,10 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
 import com.eventix.eventix.domain.Funcao;
 import com.eventix.eventix.dtos.FuncaoDTO;
 import com.eventix.eventix.repository.FuncaoRepository;
@@ -23,7 +20,7 @@ public class FuncaoService {
     return funcaoRepository.save(novo);
   }
 
-  public Funcao editar(Long id, Funcao funcaoAtualizada) {
+  public Funcao editar(Long id, Funcao funcaoAtualizada) throws java.lang.Exception {
 
     Optional<Funcao> funcaoExistente = funcaoRepository.findById(id);
 
@@ -34,7 +31,7 @@ public class FuncaoService {
       return funcaoRepository.save(funcao);
 
     } else {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Funcao não encontrada");
+      throw new Exception( "Funcao não encontrada");
     }
   }
 
@@ -46,7 +43,7 @@ public class FuncaoService {
       funcaoRepository.delete(funcao.get());
       
     } else {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Função não encontrada!");
+      throw new Exception( "Função não encontrada!");
     }
   }
 
@@ -54,7 +51,7 @@ public class FuncaoService {
     return funcaoRepository.findAll();
   }
 
-  public Funcao buscarPorId (Long id) {
-    return funcaoRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Função não encontrada"));
+  public Funcao buscarPorId (Long id) throws Exception {
+    return funcaoRepository.findById(id).orElseThrow(() -> new Exception( "Função não encontrada"));
   }
 }
