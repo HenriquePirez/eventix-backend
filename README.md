@@ -1,4 +1,5 @@
 🛠️ Backend - Eventix
+
 Este repositório contém o backend da aplicação desenvolvido em Java com o framework Spring Boot 3. O sistema fornece APIs seguras para comunicação com o frontend e utiliza PostgreSQL em um container Docker para persistência de dados. A documentação das rotas está disponível via Swagger.
 
 🚀 Tecnologias Utilizadas
