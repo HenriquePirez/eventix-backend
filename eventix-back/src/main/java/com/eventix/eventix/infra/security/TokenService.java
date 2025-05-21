@@ -19,17 +19,17 @@ public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
-    public String generateToken(Usuario Usuario){
+    public String generateToken(Usuario usuario) throws Exception{
         try{
             Algorithm algorithm = Algorithm.HMAC256(secret);
             String token = JWT.create()
                     .withIssuer("auth-api")
-                    .withSubject(Usuario.getEmail())
+                    .withSubject(usuario.getEmail())
                     .withExpiresAt(genExpirationDate())
                     .sign(algorithm);
             return token;
         } catch (JWTCreationException exception) {
-            throw new RuntimeException("Error while generating token", exception);
+            throw new Exception("Error while generating token", exception);
         }
     }
 
@@ -42,7 +42,7 @@ public class TokenService {
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException exception){
-            return "";
+            return exception.getMessage();
         }
     }
 
