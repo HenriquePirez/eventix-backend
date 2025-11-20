@@ -29,17 +29,17 @@ public class SecurityFilter extends OncePerRequestFilter{
 
   private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-  // Lista completa de rotas públicas
-    private static final List<String> PUBLIC_ROUTES = List.of(
-            "/swagger-ui/",
-            "/v3/api-docs",
-            "/swagger-ui.html",
-            "/webjars/",
-            "/favicon.ico",
-            "/auth/login",
-            "/auth/register",
-            "/public/"
-    );
+  private static final List<String> PUBLIC_ROUTES = List.of(
+    "/swagger-ui/**",
+    "/v3/api-docs/**",
+    "/swagger-ui.html",
+    "/swagger-resources/**",
+    "/webjars/**",
+    "/favicon.ico",
+    "/auth/login",
+    "/auth/register",
+    "/public/**"
+  );
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) 

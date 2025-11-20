@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.eventix.eventix.domain.Funcao;
 import com.eventix.eventix.dtos.FuncaoDTO;
+import com.eventix.eventix.dtos.FuncaoListarDTO;
 import com.eventix.eventix.services.FuncaoService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,7 +30,7 @@ public class FuncaoController {
   @Autowired
   private FuncaoService funcaoService;
 
-  @PostMapping("/admin/criar")
+  @PostMapping("/admin")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado os dados, cadastra uma função.", responses = {
             @ApiResponse(responseCode = "200", description = "Caso a função seja inserida com sucesso."),
@@ -41,7 +42,7 @@ public class FuncaoController {
       return ResponseEntity.status(HttpStatus.CREATED).body(novaFuncao);
   }
 
-  @DeleteMapping("/admin/deletar/{id}")
+  @DeleteMapping("/admin/{id}")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado o id, a função é deletada.", responses = {
     @ApiResponse(responseCode = "200", description = "Caso a função seja deletada com sucesso."),
@@ -52,19 +53,19 @@ public class FuncaoController {
     funcaoService.deletar(id);
   }
 
-  @GetMapping("/admin/listar")
+  @GetMapping("/admin")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Lista todas as funções.", responses = {
     @ApiResponse(responseCode = "200", description = "Caso as funções sejam listadas com sucesso."),
     @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
     @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
     })
-  public ResponseEntity<List<Funcao>> listar() {
-    List<Funcao> funcoes = funcaoService.listar();
+  public ResponseEntity<List<FuncaoListarDTO>> listar() {
+    List<FuncaoListarDTO> funcoes = funcaoService.listar();
     return ResponseEntity.ok(funcoes);
   }
 
-  @GetMapping("/admin/buscar/{id}")
+  @GetMapping("/admin/{id}")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado o ID, busca uma função.", responses = {
     @ApiResponse(responseCode = "200", description = "Caso a função seja encontrada com sucesso."),

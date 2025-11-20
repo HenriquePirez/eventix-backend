@@ -7,7 +7,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,33 +16,43 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfiguration {
-  
-  @Autowired
-  private SecurityFilter securityFilter;
 
-  @Bean
+    @Autowired
+    private SecurityFilter securityFilter;
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configure(http))
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                        "/swagger-ui/**",
+            .cors(cors -> cors.configure(http))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                    // Swagger e OpenAPI
+                    .requestMatchers(
                         "/v3/api-docs/**",
-                        "/v3/api-docs",
+                        "/swagger-ui/**",
                         "/swagger-ui.html",
+                        "/swagger-resources/**",
                         "/webjars/**",
-                        "/favicon.ico",
+                        "/favicon.ico"
+                    ).permitAll()
+
+                    // Endpoints públicos
+                    .requestMatchers(
                         "/auth/login",
                         "/auth/register",
                         "/public/**"
-                        ).permitAll()                      
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
+                    ).permitAll()
+
+                    // Endpoints restritos
+                    .requestMatchers("/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+
+                    // Todo o resto precisa de autenticação
+                    .anyRequest().authenticated()
+            )
+
+            .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

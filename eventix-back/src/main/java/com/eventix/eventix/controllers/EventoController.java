@@ -32,7 +32,7 @@ public class EventoController {
   @Autowired
   private EventoService eventoService;
 
-  @PostMapping("/admin/criar")
+  @PostMapping("/admin")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado os dados, cria um evento.", responses = {
     @ApiResponse(responseCode = "200", description = "Caso o evento seja criado com sucesso."),
@@ -44,7 +44,7 @@ public class EventoController {
     return ResponseEntity.status(HttpStatus.CREATED).body(novoEvento);    
   }
   
-  @DeleteMapping("/admin/deletar/{id}")
+  @DeleteMapping("/admin/{id}")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado o id, o evento é deletado.", responses = {
     @ApiResponse(responseCode = "200", description = "Caso o evento seja deletado com sucesso."),
@@ -56,7 +56,7 @@ public class EventoController {
     eventoService.deletar(id);
   }
 
-  @GetMapping("/admin/listar")
+  @GetMapping("/admin")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Lista todos os eventos.", responses = {
     @ApiResponse(responseCode = "200", description = "Caso os eventos sejam listados com sucesso."),
@@ -68,7 +68,7 @@ public class EventoController {
     return ResponseEntity.ok(eventos);
   }
 
-  @GetMapping("/admin/buscar/{id}")
+  @GetMapping("/admin/{id}")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado o id, busca o evento.", responses = {
     @ApiResponse(responseCode = "200", description = "Caso o evento seja encontardo com sucesso."),
@@ -80,9 +80,9 @@ public class EventoController {
     return ResponseEntity.ok(evento);
   }
   
-  @GetMapping("/admin/buscarPorUsuario/{id}")
+  @GetMapping("/admin/{id}/usuario")
   @PreAuthorize("hasAnyRole('ADMIN')")
-  @Operation(description = "Dado o id, busca o evento.", responses = {
+  @Operation(description = "Dado o id do usuario, busca os eventos.", responses = {
     @ApiResponse(responseCode = "200", description = "Caso o evento seja encontardo com sucesso."),
     @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
     @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")

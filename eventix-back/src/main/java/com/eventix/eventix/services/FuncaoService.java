@@ -2,11 +2,13 @@ package com.eventix.eventix.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.eventix.eventix.domain.Funcao;
 import com.eventix.eventix.dtos.FuncaoDTO;
+import com.eventix.eventix.dtos.FuncaoListarDTO;
 import com.eventix.eventix.repository.FuncaoRepository;
 
 @Service
@@ -31,27 +33,30 @@ public class FuncaoService {
       return funcaoRepository.save(funcao);
 
     } else {
-      throw new Exception( "Funcao não encontrada");
+      throw new Exception("Funcao não encontrada");
     }
   }
 
-  public void deletar (Long id) throws Exception {
+  public void deletar(Long id) throws Exception {
 
     Optional<Funcao> funcao = funcaoRepository.findById(id);
-    
+
     if (funcao.isPresent()) {
       funcaoRepository.delete(funcao.get());
-      
+
     } else {
-      throw new Exception( "Função não encontrada!");
+      throw new Exception("Função não encontrada!");
     }
   }
 
-  public List<Funcao> listar () {
-    return funcaoRepository.findAll();
+  public List<FuncaoListarDTO> listar() {
+    return funcaoRepository.findAll()
+        .stream()
+        .map(funcao -> new FuncaoListarDTO(funcao))
+        .collect(Collectors.toList());
   }
 
-  public Funcao buscarPorId (Long id) throws Exception {
-    return funcaoRepository.findById(id).orElseThrow(() -> new Exception( "Função não encontrada"));
+  public Funcao buscarPorId(Long id) throws Exception {
+    return funcaoRepository.findById(id).orElseThrow(() -> new Exception("Função não encontrada"));
   }
 }

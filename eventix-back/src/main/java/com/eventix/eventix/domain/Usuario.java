@@ -59,7 +59,7 @@ public class Usuario implements UserDetails {
     private sexoEnum sexo;
 
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private UserRole role = UserRole.USER;
 
     @JsonManagedReference
     @ManyToMany(fetch = FetchType.LAZY)
