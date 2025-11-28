@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.eventix.eventix.domain.Evento;
 import com.eventix.eventix.dtos.ConfirmarDTO;
 import com.eventix.eventix.dtos.evento.EventoDTO;
+import com.eventix.eventix.dtos.evento.EventoFuncaoDTO;
 import com.eventix.eventix.dtos.evento.EventoListarDTO;
 import com.eventix.eventix.services.EventoService;
 
@@ -80,16 +81,16 @@ public class EventoController {
     return ResponseEntity.ok(evento);
   }
   
-  @GetMapping("/admin/{id}/usuario")
+  @GetMapping("/admin/usuario/{usuarioId}")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado o id do usuario, busca os eventos.", responses = {
     @ApiResponse(responseCode = "200", description = "Caso o evento seja encontardo com sucesso."),
     @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
     @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
     })
-  public ResponseEntity<List<Evento>> buscarPorUsuario(@PathVariable Long id) {
-    List<Evento> evento = eventoService.listarEventosPorUsuario(id);
-    return ResponseEntity.ok(evento);
+  public ResponseEntity<List<EventoFuncaoDTO>> buscarPorUsuario(@PathVariable Long id) {
+    List<EventoFuncaoDTO> eventosFormatados = eventoService.buscarEventosParaUsuario(id);
+    return ResponseEntity.ok(eventosFormatados);
   }
 
   @PostMapping("/confirmarPresenca")

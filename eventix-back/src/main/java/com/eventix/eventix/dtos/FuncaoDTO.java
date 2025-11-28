@@ -1,3 +1,3 @@
 package com.eventix.eventix.dtos;
 
-public record FuncaoDTO (String nomeFuncao) { }
+public record FuncaoDTO (Long id, String nomeFuncao) { }
