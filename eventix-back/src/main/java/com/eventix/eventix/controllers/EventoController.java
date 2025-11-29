@@ -29,42 +29,42 @@ import org.springframework.web.bind.annotation.GetMapping;
 @RestController
 @RequestMapping("/evento")
 public class EventoController {
-  
+
   @Autowired
   private EventoService eventoService;
 
   @PostMapping("/admin")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado os dados, cria um evento.", responses = {
-    @ApiResponse(responseCode = "200", description = "Caso o evento seja criado com sucesso."),
-    @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
-    @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
-    })
+      @ApiResponse(responseCode = "200", description = "Caso o evento seja criado com sucesso."),
+      @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
+      @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
+  })
   public ResponseEntity<Evento> salvar(@RequestBody EventoDTO evento) {
     Evento novoEvento = eventoService.salvar(evento);
-    return ResponseEntity.status(HttpStatus.CREATED).body(novoEvento);    
+    return ResponseEntity.status(HttpStatus.CREATED).body(novoEvento);
   }
-  
+
   @DeleteMapping("/admin/{id}")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado o id, o evento é deletado.", responses = {
-    @ApiResponse(responseCode = "200", description = "Caso o evento seja deletado com sucesso."),
-    @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
-    @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
-    })
+      @ApiResponse(responseCode = "200", description = "Caso o evento seja deletado com sucesso."),
+      @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
+      @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
+  })
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deletar (@PathVariable Long id) throws Exception{
+  public void deletar(@PathVariable Long id) throws Exception {
     eventoService.deletar(id);
   }
 
   @GetMapping("/admin")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Lista todos os eventos.", responses = {
-    @ApiResponse(responseCode = "200", description = "Caso os eventos sejam listados com sucesso."),
-    @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
-    @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
-    })
-  public ResponseEntity<List<EventoListarDTO>> listar () {
+      @ApiResponse(responseCode = "200", description = "Caso os eventos sejam listados com sucesso."),
+      @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
+      @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
+  })
+  public ResponseEntity<List<EventoListarDTO>> listar() {
     List<EventoListarDTO> eventos = eventoService.listar();
     return ResponseEntity.ok(eventos);
   }
@@ -72,22 +72,22 @@ public class EventoController {
   @GetMapping("/admin/{id}")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado o id, busca o evento.", responses = {
-    @ApiResponse(responseCode = "200", description = "Caso o evento seja encontardo com sucesso."),
-    @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
-    @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
-    })
+      @ApiResponse(responseCode = "200", description = "Caso o evento seja encontardo com sucesso."),
+      @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
+      @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
+  })
   public ResponseEntity<Evento> buscar(@PathVariable Long id) {
     Evento evento = eventoService.buscarPorId(id);
     return ResponseEntity.ok(evento);
   }
-  
+
   @GetMapping("/admin/usuario/{usuarioId}")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado o id do usuario, busca os eventos.", responses = {
-    @ApiResponse(responseCode = "200", description = "Caso o evento seja encontardo com sucesso."),
-    @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
-    @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
-    })
+      @ApiResponse(responseCode = "200", description = "Caso o evento seja encontardo com sucesso."),
+      @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
+      @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
+  })
   public ResponseEntity<List<EventoFuncaoDTO>> buscarPorUsuario(@PathVariable Long id) {
     List<EventoFuncaoDTO> eventosFormatados = eventoService.buscarEventosParaUsuario(id);
     return ResponseEntity.ok(eventosFormatados);
@@ -95,7 +95,28 @@ public class EventoController {
 
   @PostMapping("/confirmarPresenca")
   public boolean confirmarPresenca(@RequestBody ConfirmarDTO dto) throws Exception {
-      return eventoService.confirmarPresenca(dto.evento_id(), dto.user_id());
+    return eventoService.confirmarPresenca(dto.evento_id(), dto.user_id());
   }
-  
-}  
+
+  @GetMapping("/usuario/{usuarioId}/nao-confirmados")
+  @Operation(description = "Dado o id do usuario, busca os eventos em que ele não está confirmado.", responses = {
+      @ApiResponse(responseCode = "200", description = "Caso o evento seja encontardo com sucesso."),
+      @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
+      @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
+  })
+  public ResponseEntity<List<Evento>> getEventosNaoConfirmadosPorUsuario(@PathVariable Long usuarioId) {
+    List<Evento> eventos = eventoService.listarEventosNaoConfirmadosPorUsuario(usuarioId);
+    return ResponseEntity.ok(eventos);
+  }
+
+  @GetMapping("/usuario/{usuarioId}/confirmados")
+  @Operation(description = "Dado o id do usuario, busca os eventos em que ele está confirmado.", responses = {
+      @ApiResponse(responseCode = "200", description = "Caso o evento seja encontardo com sucesso."),
+      @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
+      @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
+  })
+  public ResponseEntity<List<Evento>> getEventosConfirmadosPorUsuario(@PathVariable Long usuarioId) {
+    List<Evento> eventos = eventoService.listarEventosConfirmadosPorUsuario(usuarioId);
+    return ResponseEntity.ok(eventos);
+  }
+}

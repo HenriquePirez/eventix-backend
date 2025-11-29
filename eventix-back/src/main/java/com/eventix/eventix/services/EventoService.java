@@ -170,6 +170,7 @@ public class EventoService {
   }
 
   private EventoFuncaoDTO converterParaDTO(Evento evento, Long usuarioId) {
+
     EventoFuncaoDTO dto = new EventoFuncaoDTO();
 
     // Mapeia os dados básicos do evento para o DTO
@@ -201,5 +202,23 @@ public class EventoService {
     dto.setParticipantes(listaDeNomes);
 
     return dto;
+  }
+
+  public List<Evento> listarEventosNaoConfirmadosPorUsuario(Long usuarioId) {
+    List<UsuarioEvento> participacoesNaoConfirmadas = usuarioEventoRepository
+        .findByUsuarioIdAndConfirmadoFalse(usuarioId);
+
+    // 2. Extrai e retorna apenas os eventos a partir das associações
+    return participacoesNaoConfirmadas.stream()
+        .map(UsuarioEvento::getEvento) // Para cada UsuarioEvento, pega o Evento associado
+        .collect(Collectors.toList());
+  }
+
+  public List<Evento> listarEventosConfirmadosPorUsuario(Long usuarioId) {
+    List<UsuarioEvento> participacoesConfirmadas = usuarioEventoRepository.findByUsuarioIdAndConfirmadoTrue(usuarioId);
+
+    return participacoesConfirmadas.stream()
+        .map(UsuarioEvento::getEvento)
+        .collect(Collectors.toList());
   }
 }
