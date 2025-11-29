@@ -80,8 +80,8 @@ public class EventoController {
     Evento evento = eventoService.buscarPorId(id);
     return ResponseEntity.ok(evento);
   }
-
-  @GetMapping("/admin/usuario/{usuarioId}")
+  
+  @GetMapping("/admin/usuario/{id}")
   @PreAuthorize("hasAnyRole('ADMIN')")
   @Operation(description = "Dado o id do usuario, busca os eventos.", responses = {
       @ApiResponse(responseCode = "200", description = "Caso o evento seja encontardo com sucesso."),
