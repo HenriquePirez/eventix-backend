@@ -62,7 +62,7 @@ public class Usuario implements UserDetails {
     private UserRole role = UserRole.USER;
 
     @JsonManagedReference
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "usuario_funcoes", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "funcao_id"))
     private Set<Funcao> funcoes = new HashSet<>();
 

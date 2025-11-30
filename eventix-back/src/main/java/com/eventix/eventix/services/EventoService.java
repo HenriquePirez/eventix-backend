@@ -169,6 +169,38 @@ public class EventoService {
     return true;
   }
 
+  // ao recusar a presença, retira o evento da lista de eventos do usuário
+  public boolean recusarPresenca(Long id_evento, Long id_user) throws Exception {
+
+    Optional<Evento> evento = eventoRepository.findById(id_evento);
+
+    if (evento.isPresent()) {
+      Optional<Usuario> user = usuarioRepository.findById(id_user);
+      if (user.isPresent()) {
+        UsuarioEvento usuarioEventoToRemove = null;
+        for (UsuarioEvento usuarioEvento : evento.get().getParticipantes()) {
+          if (usuarioEvento.getUsuario().equals(user.get())) {
+            usuarioEventoToRemove = usuarioEvento;
+            break;
+          }
+        }
+        if (usuarioEventoToRemove != null) {
+          evento.get().getParticipantes().remove(usuarioEventoToRemove);
+          usuarioEventoRepository.delete(usuarioEventoToRemove);
+        } else {
+          throw new Exception("Usuario nao esta participando desse evento");
+        }
+      } else {
+        throw new Exception("Usuario nao encontrado");
+      }
+
+    } else {
+      throw new Exception("Evento nao encontrado");
+    }
+    return true;
+
+  }
+
   private EventoFuncaoDTO converterParaDTO(Evento evento, Long usuarioId) {
 
     EventoFuncaoDTO dto = new EventoFuncaoDTO();
@@ -205,6 +237,7 @@ public class EventoService {
   }
 
   public List<Evento> listarEventosNaoConfirmadosPorUsuario(Long usuarioId) {
+    System.out.println("Buscando eventos não confirmados para o usuário com ID: " + usuarioId);
     List<UsuarioEvento> participacoesNaoConfirmadas = usuarioEventoRepository
         .findByUsuarioIdAndConfirmadoFalse(usuarioId);
 

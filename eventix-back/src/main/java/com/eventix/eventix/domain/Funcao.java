@@ -26,7 +26,7 @@ public class Funcao {
     private String nomeFuncao;
 
     @JsonBackReference
-    @ManyToMany(mappedBy = "funcoes", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "funcoes", fetch = FetchType.EAGER)
     private Set<Usuario> usuarios = new HashSet<>();
 }
 

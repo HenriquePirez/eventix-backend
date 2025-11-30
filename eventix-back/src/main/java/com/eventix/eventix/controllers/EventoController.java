@@ -77,6 +77,7 @@ public class EventoController {
       @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
   })
   public ResponseEntity<Evento> buscar(@PathVariable Long id) {
+    System.out.println("Buscando evento com id: " + id);
     Evento evento = eventoService.buscarPorId(id);
     return ResponseEntity.ok(evento);
   }
@@ -96,6 +97,11 @@ public class EventoController {
   @PostMapping("/confirmarPresenca")
   public boolean confirmarPresenca(@RequestBody ConfirmarDTO dto) throws Exception {
     return eventoService.confirmarPresenca(dto.evento_id(), dto.user_id());
+  }
+
+  @PostMapping("/recusarPresenca")
+  public boolean recusarPresenca(@RequestBody ConfirmarDTO dto) throws Exception {
+    return eventoService.recusarPresenca(dto.evento_id(), dto.user_id());
   }
 
   @GetMapping("/usuario/{usuarioId}/nao-confirmados")

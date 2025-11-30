@@ -22,17 +22,17 @@ import lombok.Setter;
 public class UsuarioEvento {
 
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "evento_id")
     @JsonIgnore
     private Evento evento;
     
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "funcao_id")
     private Funcao funcao;
 
