@@ -95,9 +95,5 @@ public class Usuario implements UserDetails {
         return this.email;
     }
 
-    @JsonIgnore
-    public Long getId() {
-        return this.id;
-    }
 
 }
