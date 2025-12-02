@@ -1,9 +1,12 @@
 package com.eventix.eventix.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.eventix.eventix.domain.Usuario;
+import com.eventix.eventix.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.eventix.eventix.domain.Funcao;
@@ -15,6 +18,9 @@ import com.eventix.eventix.repository.FuncaoRepository;
 public class FuncaoService {
   @Autowired
   private FuncaoRepository funcaoRepository;
+
+  @Autowired
+  private UsuarioRepository usuarioRepository;
 
   public Funcao salvar(FuncaoDTO funcao) {
     Funcao novo = new Funcao();
@@ -59,4 +65,13 @@ public class FuncaoService {
   public Funcao buscarPorId(Long id) throws Exception {
     return funcaoRepository.findById(id).orElseThrow(() -> new Exception("Função não encontrada"));
   }
+
+  //buscar funções do usuario, dado o id do usuario
+  public List<Funcao> listarFuncoesDoUsuario(Long usuarioId) {
+    Usuario user = usuarioRepository.findById(usuarioId)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+    return new ArrayList<>(user.getFuncoes());
+  }
+
 }

@@ -2,13 +2,12 @@ package com.eventix.eventix.controllers;
 
 import java.util.List;
 
+import com.eventix.eventix.dtos.evento.EventoEditarDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.eventix.eventix.domain.Evento;
 import com.eventix.eventix.dtos.ConfirmarDTO;
@@ -19,12 +18,6 @@ import com.eventix.eventix.services.EventoService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/evento")
@@ -110,8 +103,8 @@ public class EventoController {
       @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
       @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
   })
-  public ResponseEntity<List<Evento>> getEventosNaoConfirmadosPorUsuario(@PathVariable Long usuarioId) {
-    List<Evento> eventos = eventoService.listarEventosNaoConfirmadosPorUsuario(usuarioId);
+  public ResponseEntity<List<EventoFuncaoDTO>> getEventosNaoConfirmadosPorUsuario(@PathVariable Long usuarioId) {
+    List<EventoFuncaoDTO> eventos = eventoService.listarEventosNaoConfirmadosPorUsuario(usuarioId);
     return ResponseEntity.ok(eventos);
   }
 
@@ -121,8 +114,21 @@ public class EventoController {
       @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
       @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
   })
-  public ResponseEntity<List<Evento>> getEventosConfirmadosPorUsuario(@PathVariable Long usuarioId) {
-    List<Evento> eventos = eventoService.listarEventosConfirmadosPorUsuario(usuarioId);
+  public ResponseEntity<List<EventoFuncaoDTO>> getEventosConfirmadosPorUsuario(@PathVariable Long usuarioId) {
+    List<EventoFuncaoDTO> eventos = eventoService.listarEventosConfirmadosPorUsuario(usuarioId);
     return ResponseEntity.ok(eventos);
+  }
+
+  @PutMapping("/admin/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @Operation(description = "Dado o id e os dados, atualiza um evento.", responses = {
+        @ApiResponse(responseCode = "200", description = "Caso o evento seja atualizado com sucesso."),
+        @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
+        @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
+    })
+    public ResponseEntity<Evento> atualizar(@PathVariable Long id, @RequestBody EventoEditarDTO eventoDTO) throws Exception
+  {
+            Evento eventoAtualizado = eventoService.editar(id, eventoDTO);
+            return ResponseEntity.ok(eventoAtualizado);
   }
 }

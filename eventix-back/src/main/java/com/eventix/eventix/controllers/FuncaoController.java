@@ -76,4 +76,18 @@ public class FuncaoController {
     Funcao funcao = funcaoService.buscarPorId(id);
     return ResponseEntity.ok(funcao);
   }
+
+  @GetMapping("/admin/usuario/{id}")
+  @PreAuthorize("hasAnyRole('ADMIN')")
+  @Operation(description = "Dado o ID, busca uma função.", responses = {
+          @ApiResponse(responseCode = "200", description = "Caso a função seja encontrada com sucesso."),
+          @ApiResponse(responseCode = "400", description = "O servidor não pode processar a requisição devido a alguma coisa que foi entendida como um erro do cliente."),
+          @ApiResponse(responseCode = "500", description = "Caso não tenha sido possível realizar a operação.")
+  })
+  public ResponseEntity<List<Funcao>> buscarPorUsuario(@PathVariable Long id) {
+    List<Funcao> funcoes = funcaoService.listarFuncoesDoUsuario(id);
+    return ResponseEntity.ok(funcoes);
+  }
+
+
 }

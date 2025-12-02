@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 public record EventoListarDTO (
+  Long id,
   String nome, 
   String local,
   LocalDate data, 

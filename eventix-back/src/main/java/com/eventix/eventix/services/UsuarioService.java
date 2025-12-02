@@ -63,7 +63,8 @@ public class UsuarioService {
 
       Usuario user = usuarioExistente.get();
       user.setDataNascimento(usuarioAtualizado.dataNascimento());
-      user.setEmail(usuarioAtualizado.email());
+      user.setSexo(usuarioAtualizado.sexo());
+      //user.setEmail(usuarioAtualizado.email());
       user.setNome(usuarioAtualizado.nome());
 
       // Atualiza funções

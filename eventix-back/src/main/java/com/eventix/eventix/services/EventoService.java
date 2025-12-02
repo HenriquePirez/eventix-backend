@@ -1,13 +1,14 @@
 package com.eventix.eventix.services;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.eventix.eventix.dtos.UsuarioFuncaoDTO;
+import com.eventix.eventix.dtos.evento.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.eventix.eventix.domain.Evento;
@@ -15,12 +16,6 @@ import com.eventix.eventix.domain.Funcao;
 import com.eventix.eventix.domain.Usuario;
 import com.eventix.eventix.domain.UsuarioEvento;
 import com.eventix.eventix.dtos.FuncaoDTO;
-import com.eventix.eventix.dtos.evento.EventoDTO;
-import com.eventix.eventix.dtos.evento.EventoFuncaoDTO;
-import com.eventix.eventix.dtos.evento.EventoListarDTO;
-import com.eventix.eventix.dtos.evento.UsuarioEventoDTO;
-import com.eventix.eventix.dtos.evento.UsuarioEventoListarDTO;
-import com.eventix.eventix.dtos.evento.UsuarioNomeDTO;
 import com.eventix.eventix.repository.EventoRepository;
 import com.eventix.eventix.repository.FuncaoRepository;
 import com.eventix.eventix.repository.UsuarioEventoRepository;
@@ -66,24 +61,46 @@ public class EventoService {
     return eventoRepository.save(evento);
   }
 
-  public Evento editar(Long id, Evento eventoAtualizado) {
+  @Transactional
+  public Evento editar(Long id, EventoEditarDTO eventoAtualizado) {
 
-    Optional<Evento> eventoExistente = eventoRepository.findById(id);
+    Evento evento = eventoRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Evento não encontrado"));
 
-    if (eventoExistente.isPresent()) {
+    // Atualiza dados básicos
+    evento.setNomeEvento(eventoAtualizado.nomeEvento());
+    evento.setLocal(eventoAtualizado.local());
+    evento.setData(eventoAtualizado.data());
+    evento.setHorario(eventoAtualizado.horario());
 
-      Evento evento = eventoExistente.get();
-      evento.setNomeEvento(eventoAtualizado.getNomeEvento());
-      evento.setLocal(eventoAtualizado.getLocal());
-      evento.setData(eventoAtualizado.getData());
-      evento.setHorario(eventoAtualizado.getHorario());
-      // Alteração da senha será feito ainda
-      return eventoRepository.save(evento);
+    Set<UsuarioEvento> novosParticipantes = new HashSet<>();
 
-    } else {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Evento não encontrado");
+    for (UsuarioFuncaoDTO dto : eventoAtualizado.participantes()) {
+
+      Usuario usuario = usuarioRepository.findById(dto.usuarioId())
+              .orElseThrow(() -> new ResponseStatusException(
+                      HttpStatus.NOT_FOUND, "Usuário não encontrado: " + dto.usuarioId()));
+
+      Funcao funcao = funcaoRepository.findById(dto.funcaoId())
+              .orElseThrow(() -> new ResponseStatusException(
+                      HttpStatus.NOT_FOUND, "Função não encontrada: " + dto.funcaoId()));
+
+      UsuarioEvento ue = new UsuarioEvento();
+      ue.setEvento(evento);
+      ue.setUsuario(usuario);
+      ue.setFuncao(funcao);
+      ue.setConfirmado(false);
+
+      novosParticipantes.add(ue);
     }
+
+    // Substitui os antigos pelos novos
+    evento.getParticipantes().clear();
+    evento.getParticipantes().addAll(novosParticipantes);
+
+    return eventoRepository.save(evento);
   }
+
 
   public void deletar(Long id) throws Exception {
 
@@ -118,7 +135,7 @@ public class EventoService {
         listaAux.add(aux);
       }
       // Instancia o objeto da lista de response
-      EventoListarDTO objetoAux = new EventoListarDTO(evento.getNomeEvento(), evento.getLocal(), evento.getData(),
+      EventoListarDTO objetoAux = new EventoListarDTO(evento.getId(), evento.getNomeEvento(), evento.getLocal(), evento.getData(),
           evento.getHorario(), listaAux);
 
       // Adiciona o objeto na lista de response
@@ -236,22 +253,51 @@ public class EventoService {
     return dto;
   }
 
-  public List<Evento> listarEventosNaoConfirmadosPorUsuario(Long usuarioId) {
+  public List<EventoFuncaoDTO> listarEventosNaoConfirmadosPorUsuario(Long usuarioId) {
     System.out.println("Buscando eventos não confirmados para o usuário com ID: " + usuarioId);
     List<UsuarioEvento> participacoesNaoConfirmadas = usuarioEventoRepository
         .findByUsuarioIdAndConfirmadoFalse(usuarioId);
 
     // 2. Extrai e retorna apenas os eventos a partir das associações
     return participacoesNaoConfirmadas.stream()
-        .map(UsuarioEvento::getEvento) // Para cada UsuarioEvento, pega o Evento associado
+            .map(ue -> converterParaEventoFuncaoDTO(ue.getEvento(), usuarioId))
+            .collect(Collectors.toList());
+  }
+
+  public List<EventoFuncaoDTO> listarEventosConfirmadosPorUsuario(Long usuarioId) {
+    List<UsuarioEvento> participacoesConfirmadas = usuarioEventoRepository.findByUsuarioIdAndConfirmadoTrue(usuarioId);
+
+    //retornar lista de EventoFuncaoDTO
+    return participacoesConfirmadas.stream()
+        .map(ue -> converterParaEventoFuncaoDTO(ue.getEvento(), usuarioId))
         .collect(Collectors.toList());
   }
 
-  public List<Evento> listarEventosConfirmadosPorUsuario(Long usuarioId) {
-    List<UsuarioEvento> participacoesConfirmadas = usuarioEventoRepository.findByUsuarioIdAndConfirmadoTrue(usuarioId);
+  // converter evento para eventoFuncaoDTO
+  private EventoFuncaoDTO converterParaEventoFuncaoDTO(Evento evento, Long usuarioId) {
+    EventoFuncaoDTO dto = new EventoFuncaoDTO();
+    dto.setId(evento.getId());
+    dto.setNomeEvento(evento.getNomeEvento());
+    dto.setLocal(evento.getLocal());
+    dto.setData(evento.getData());
+    dto.setHorario(evento.getHorario());
 
-    return participacoesConfirmadas.stream()
-        .map(UsuarioEvento::getEvento)
+    for (UsuarioEvento ue : evento.getParticipantes()) {
+      if (ue.getUsuario().getId().equals(usuarioId)) {
+        Funcao funcao = ue.getFuncao();
+        dto.setFuncaoDoUsuario(new FuncaoDTO(funcao.getId(), funcao.getNomeFuncao()));
+        break;
+      }
+    }
+
+    List<UsuarioNomeDTO> listaDeNomes = evento.getParticipantes().stream()
+        .map(participante -> {
+          Usuario usuario = participante.getUsuario();
+          return new UsuarioNomeDTO(usuario.getId(), usuario.getNome());
+        })
         .collect(Collectors.toList());
+    dto.setParticipantes(listaDeNomes);
+
+    return dto;
   }
 }
